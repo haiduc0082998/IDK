@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-clear-tables").addEventListener("click", clearTableData);
     document.getElementById("btn-export").addEventListener("click", exportToWord);
     document.getElementById("btn-apply-week").addEventListener("click", () => applyWeekToReport(false));
+    document.getElementById("btn-import-gsheets").addEventListener("click", importFromGoogleSheets);
 
     var prevBtn = document.getElementById('btn-week-prev');
     var nextBtn = document.getElementById('btn-week-next');
@@ -30,7 +31,116 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4. Khởi tạo ô có thể chỉnh sửa và nút xóa dòng
     initEditableTableCells();
     initDeleteButtons();
+
+    // 5. Xử lý file CSV/Excel
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFileImport);
+    }
 });
+
+function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        let textData = '';
+
+        if (file.name.endsWith('.csv')) {
+            textData = csvToArray(content);
+        } else if (file.name.match(/\.(xlsx|xls)$/i)) {
+            const data = new Uint8Array(content);
+            const workbook = XLSX.read(data, { type: 'array' });
+            textData = excelToArray(workbook);
+        }
+
+        if (textData) {
+            document.getElementById('rawDataInput').value = textData;
+            processRawData();
+        } else {
+            alert('Không thể đọc file. Vui lòng kiểm tra lại định dạng.');
+        }
+    };
+
+    if (file.name.match(/\.(xlsx|xls)$/i)) {
+        reader.readAsArrayBuffer(file);
+    } else {
+        reader.readAsText(file);
+    }
+}
+
+function excelToArray(workbook) {
+    const result = [];
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, blankrows: false });
+
+    jsonData.forEach((row, index) => {
+        if (index === 0 || !row || row.length === 0) return;
+
+        const cells = row.map(c => {
+            if (c === null || c === undefined) return '';
+            if (typeof c === 'number') {
+                return c.toString();
+            }
+            return String(c).trim();
+        });
+
+        if (cells.length >= 5) {
+            result.push(`${cells[0]} | ${cells[1]} | ${cells[2]} | ${cells[3]} | ${cells[4]}`);
+        } else if (cells.length === 4) {
+            result.push(`${cells[0]} | ${cells[1]} | ${cells[2]} | ${cells[3]} | `);
+        }
+    });
+    return result.join('\n');
+}
+
+function csvToArray(csvContent) {
+    const lines = csvContent.trim().split(/\r?\n/);
+    const result = [];
+    lines.forEach((line, index) => {
+        if (!line.trim()) return;
+        const cells = line.split(',').map(c => c.trim());
+        if (cells.length >= 5) {
+            result.push(`${cells[0]} | ${cells[1]} | ${cells[2]} | ${cells[3]} | ${cells[4]}`);
+        } else if (cells.length === 4) {
+            result.push(`${cells[0]} | ${cells[1]} | ${cells[2]} | ${cells[3]} | `);
+        }
+    });
+    return result.join('\n');
+}
+
+function importFromGoogleSheets() {
+    const url = document.getElementById('gsheetsUrl').value.trim();
+    if (!url) {
+        alert('Vui lòng nhập link Google Sheets!');
+        return;
+    }
+
+    var match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (!match) {
+        alert('Link Google Sheets không hợp lệ!');
+        return;
+    }
+
+    var sheetId = match[1];
+    var csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+
+    fetch(csvUrl)
+        .then(response => {
+            if (!response.ok) throw new Error('Lỗi tải dữ liệu');
+            return response.text();
+        })
+        .then(csvContent => {
+            var textData = csvToArray(csvContent);
+            document.getElementById('rawDataInput').value = textData;
+            processRawData();
+        })
+        .catch(error => {
+            alert('Lỗi khi nhập từ Google Sheets. Kiểm tra lại link và chia sẻ công khai: ' + error.message);
+        });
+}
 
 // --- CÁC HÀM XỬ LÝ TIỀN TỆ & ĐỊNH DẠNG ---
 function formatCurrency(value) {
