@@ -3,345 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="index.css">
     <title>Dự Đoán Dòng Tiền W27 - Báo Cáo Thu Chi</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
-<div class="container">
-
-    <div class="import-panel">
-        <h3>📥 Nhập Dữ Liệu Tự Động</h3>
-        <p style="font-size: 13px; margin-bottom: 10px;">Nhập dữ liệu thô (mỗi dòng: <code>TÊN_MỤC|SỐ_TIỀN|VỐN/NGOẠI_TỆ|TUẦN|HÀNH ĐỘNG</code>, cách nhau bằng dấu | ):</p>
-        <textarea id="rawDataInput" placeholder="Ví dụ:
-Dự Thu Tuần W27|579198228|VNĐ|W27|thu
-Mission 01|222366970|VNĐ|W27|thu
-Mission 02|356831258|VNĐ|W27|thu
-Sale|0|VNĐ|W27|thu
-Dự Chi Tuần W27|492128773|VNĐ|W27|chi
-Dự án|58204888|VNĐ|W27|chi
-Cố định|433923885|VNĐ|W27|chi
-Net Cashflow|87069455|VNĐ|W27|tong
-Cash Gap|0|VNĐ|W27|khoan
-Quá hạn|14|Ghi chú|W27|dem
-Rủi ro pháp lý|2|Ghi chú|W27|dem
-Tổng thu W21-W25|300597074|VNĐ|Tháng 06|so-tien
-Tổng thu W26-W30|115049200|VNĐ|Tháng 07|so-tien
-Lương T03|35000000|VNĐ|W27|so-tien
-Lương T04|118698750|VNĐ|W27|so-tien
-Lương T05|173162279|VNĐ|W27|so-tien
-BHXH T06|22819200|VNĐ|W26|so-tien
-Tiền thuê văn phòng|34138800|VNĐ|W25|so-tien
-Tổng priority 01|107062856|VNĐ|W28|so-tien
-Tổng priority 02|325084792|VNĐ|W28|so-tien"></textarea>
-        <br>
-        <button class="btn-process" id="btn-process">Xử Lý Dữ Liệu</button>
-        <button class="btn-process btn-danger" id="btn-clear" style="margin-left: 10px;">Xóa Dữ Liệu</button>
-        <button class="btn-process btn-success" id="btn-export" style="margin-left: 10px;">📤 Xuất Word</button>
-    </div>
-
     <header>
-        <div>
-            <h1>A. Báo Thu Chi - Dự Đoán Dòng Tiền W27</h1>
-            <div style="margin-top: 5px; font-weight: 500;">Chu kỳ: 06/29 - 07/05/2026</div>
-        </div>
-        <div class="meta-info">
-            Người lập: <strong>@Kim Phuong</strong><br>
-            Ngày xuất bản: 29/06/2026
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h1>A. Báo Thu Chi - Dự Đoán Dòng Tiền W27</h1>
+                <div style="color: #94a3b8; font-size: 14px; margin-top: 5px;">Chu kỳ: 29/06/2026 - 05/07/2026</div>
+            </div>
+            <div class="meta-info">
+                Người lập: <strong>@Kim Phuong</strong><br>
+                Ngày xuất bản: 29/06/2026<br>
+                <div id="real-time-clock" style="margin-top: 4px; font-size: 13px; color: #fbbf24;">⏱ Hệ thống: --/--/---- --:--:--</div>
+                <button class="btn-process btn-danger btn-sm" id="btn-clear-all" style="margin-top: 8px;">🗑 Xóa Tất Cả Dữ Liệu</button>
+            </div>
         </div>
     </header>
 
-    <div class="grid-3">
-        <div class="card-du-thu card">
-            <h2>Dự Thu Tuần W27</h2>
-            <div style="font-size: 24px;" class="text-success" id="du-thu-tuan" data-label="Dự Thu Tuần W27">579.198.228 ₫</div>
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;">
-            <div style="font-size: 14px;" id="chi-tiet-thu">
-                • Mission 01: <span data-label="Mission 01" data-type="thu">222.366.970 ₫</span><br>
-                • Mission 02: <span data-label="Mission 02" data-type="thu">356.831.258 ₫</span><br>
-                • Sale: <span class="text-warning" data-label="Sale" data-type="thu">0 ₫ (Chưa có dữ liệu)</span>
-            </div>
-        </div>
-
-        <div class="card-du-chi card">
-            <h2>Dự Chi Tuần W27</h2>
-            <div style="font-size: 24px;" class="text-danger" id="du-chi-tuan" data-label="Dự Chi Tuần W27">492.128.773 ₫</div>
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;">
-            <div style="font-size: 14px;" id="chi-tiet-chi">
-                • Dự án: <span data-label="Dự án" data-type="chi">58.204.888 ₫</span><br>
-                • Cố định: <span data-label="Cố định" data-type="chi">433.923.885 ₫</span><br>
-                <span style="color: #718096; font-style: italic;">*Không gồm Pipeline chưa quy đổi</span>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Net Cashflow & Gap</h2>
-            <div style="font-size: 24px;" class="text-primary" id="net-cashflow" data-label="Net Cashflow">87.069.455 ₫</div>
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;">
-            <div style="font-size: 14px;" id="chi-tiet-khac">
-                • Cash Gap: <span class="text-primary" data-label="Cash Gap" data-type="khoan">0 ₫</span><br>
-                • Quá hạn: <span class="text-danger" data-label="Quá hạn" data-type="dem">14 khoản</span><br>
-                • Rủi ro pháp lý: <span class="text-danger" data-label="Rủi ro pháp lý" data-type="dem">2 khoản</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <div class="card">
-            <h2>Theo Tháng 06</h2>
-            <div class="kpi-box">
-                <strong>KPI (05/20-06/19):</strong> <span data-label="KPI Tháng 06">1.000.000.000 ₫</span>
-                <div class="progress-bar"><div class="progress-fill" id="progress-thang-06" style="width: 30.06%;"></div></div>
-            </div>
-            <div style="font-size: 14px;" id="chi-tiet-thang-06">
-                • Tổng thu W21-W25: <span data-label="Tổng thu W21-W25">300.597.074 ₫</span> (30.06% KPI)<br>
-                • Còn thiếu: <span class="text-danger" data-label="Còn thiếu 06">699.402.926 ₫</span><br>
-                • Tổng chi tháng: <span data-label="Tổng chi tháng 06">375.136.006 ₫</span><br>
-                <div class="alert alert-danger" style="margin-top:10px; padding:6px 12px;">
-                    <strong>Net Cashflow:</strong> <span data-label="Net Cashflow 06">-74.538.932 ₫</span> (Thiếu tiền)
+    <div class="container">
+        <section class="card bg-dark" style="margin-bottom: 25px;">
+            <h3 style="margin-top: 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                📅 Bộ Lọc Chu Kỳ Báo Cáo (ISO 8601)
+            </h3>
+            <div class="control-panel">
+                <div class="control-group">
+                    <label>Chọn ngày bất kỳ:</label>
+                    <input type="date" id="ws-date">
+                </div>
+                <div class="control-group">
+                    <label>Điều chỉnh tuần:</label>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn-process" id="btn-week-prev" style="padding: 6px 12px;">◀ Tuần trước</button>
+                        <button class="btn-process" id="btn-week-next" style="padding: 6px 12px;">Tuần sau ▶</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="ws-auto-apply" checked> Tự động áp dụng
+                    </label>
+                    <button class="btn-process" id="btn-apply-week" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); font-weight: bold;">
+                        🚀 Áp dụng tuần chọn
+                    </button>
                 </div>
             </div>
+            <div class="week-status-bar" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px;">
+                <div>Hôm nay: <span id="ws-today" style="color: #38bdf8; font-weight: bold;">--/--/----</span></div>
+                <div>Tuần hiện tại: <span id="ws-current-week" style="color: #10b981; font-weight: bold;">W--</span></div>
+                <div>Trạng thái bộ lọc: <span id="ws-selected-week" style="color: #fbbf24; font-weight: bold;">→ Đang tính toán...</span></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>📥 Nhập Dữ Liệu Báo Cáo Thô</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 10px;">
+                Dán dữ liệu định dạng: <code style="color: #f43f5e;">TÊN_MỤC | SỐ_TIỀN | ĐƠN_VỊ | TUẦN | HÀNH_ĐỘNG</code> (Mỗi mục một dòng)
+            </p>
+            <textarea id="rawDataInput" placeholder="Ví dụ:&#10;Dự Thu Tuần W27 | 500,000,000 | đ | W27 | thu&#10;Lương T06 | 15,000,000 | đ | W27 | so-tien"></textarea>
+            <div class="btn-group">
+                <button class="btn-process" id="btn-process">⚡ Xử Lý Dữ Liệu</button>
+                <button class="btn-process btn-secondary" id="btn-clear">🧹 Xóa Khung Nhập</button>
+                <button class="btn-process btn-secondary" id="btn-clear-tables">🧻 Đặt Lại Số Trong Bảng (=0)</button>
+                <button class="btn-process btn-success" id="btn-export">📝 Xuất Bản Báo Cáo Word</button>
+            </div>
+        </section>
+
+        <div class="grid">
+            <div class="card card-kpi">
+                <span class="card-title">💰 Dự Thu Tuần W27</span>
+                <div class="card-value text-success" id="du-thu-tuan" data-label="Dự Thu Tuần W27">0 ₫</div>
+            </div>
+            <div class="card card-kpi">
+                <span class="card-title">💸 Dự Chi Tuần W27</span>
+                <div class="card-value text-danger" id="du-chi-tuan" data-label="Dự Chi Tuần W27">0 ₫</div>
+            </div>
+            <div class="card card-kpi">
+                <span class="card-title">📊 Net Cashflow W27</span>
+                <div class="card-value" id="net-cashflow">0 ₫</div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Theo Tháng 07 & Thực Tế W26</h2>
-            <div class="kpi-box">
-                <strong>KPI (06/20-19/07):</strong> <span data-label="KPI Tháng 07">1.000.000.000 ₫</span>
-                <div class="progress-bar"><div class="progress-fill" id="progress-thang-07" style="width: 11.5%;"></div></div>
-            </div>
-            <div style="font-size: 14px;" id="chi-tiet-thang-07">
-                • Tổng thu W26-W30: <span data-label="Tổng thu W26-W30">115.049.200 ₫</span> (11.5% KPI)<br>
-                • Tổng dự chi tháng: <span data-label="Tổng dự chi tháng 07">850.000.000 ₫</span><br>
-                <div class="kpi-box" style="margin-top: 5px; background: #fff5f5; border: 1px solid #feb2b2;">
-                    <strong>Thực tế W26:</strong> Thu: <span data-label="Thu W26">115.049.200 ₫</span> | Chi: <span data-label="Chi W26">118.809.150 ₫</span> (Cố định)<br>
-                    <strong>Net CF W26:</strong> <span class="text-danger" data-label="Net CF W26">-3.759.950 ₫</span> (Thiếu tiền)
+        <section class="card">
+            <h2>📈 Tiến Độ Đạt KPI Doanh Thu Tháng</h2>
+            <div style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                    <span>Tháng 06 (Mục tiêu: 1,000,000,000 ₫)</span>
+                    <span id="txt-thang-06" data-label="Tổng thu W21-W25">300.597.074 ₫</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-thang-06" style="width: 30.06%;"></div>
                 </div>
             </div>
-        </div>
-    </div>
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                    <span>Tháng 07 (Mục tiêu: 1,000,000,000 ₫)</span>
+                    <span id="txt-thang-07" data-label="Tổng thu W26-W30">115.049.200 ₫</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar progress-orange" id="progress-thang-07" style="width: 11.50%;"></div>
+                </div>
+            </div>
+        </section>
 
-    <div class="alert alert-warning">
-        <strong>Kiểm tra lệch số:</strong> Tiêu đề mục B ghi nhận 950.672.074 ₫, tuy nhiên tổng Mission 01 + Mission 02 thực tế chỉ đạt 579.198.228 ₫. Số tiền chênh lệch là <strong>371.473.846 ₫</strong> hiện chưa có chi tiết và tạm thời không được cộng dồn vào tổng.
-    </div>
+        <section class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">1. Khối Lương Tồn Đang Quản Lý</h2>
+                <div class="badge badge-danger" style="font-size: 15px; padding: 6px 12px;">
+                    Tổng cộng: <span data-label="Tổng lương tồn">326.861.029 ₫</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="8%">STT</th>
+                            <th>Mục Chi Phí Lương</th>
+                            <th width="20%">Số Tiền Tồn</th>
+                            <th width="15%">Đơn Vị</th>
+                            <th width="12%">Tuần Chu Kỳ</th>
+                            <th width="15%">Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body-luong">
+                        <tr data-label="Lương T03">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td>01</td>
+                            <td contenteditable="true"><strong>Lương T03</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td><span class="badge badge-warning">Đợi duyệt chi</span></td>
+                        </tr>
+                        <tr data-label="Lương T04">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td>02</td>
+                            <td contenteditable="true"><strong>Lương T04</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td><span class="badge badge-warning">Đợi duyệt chi</span></td>
+                        </tr>
+                        <tr data-label="Lương T05">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td>03</td>
+                            <td contenteditable="true"><strong>Lương T05</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td><span class="badge badge-warning">Đợi duyệt chi</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-    <div class="card" style="margin-bottom: 25px;" id="bang-luong-ton" data-table="lương">
-        <h2>D. CHI TIẾT MUST - LƯƠNG TỒN ĐỌNG T03 - T05 (Tổng: <span data-label="Tổng lương tồn">326.861.029 ₫</span>)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 60px;">STT</th>
-                    <th style="width: 150px;">Số tiền</th>
-                    <th>Mô tả</th>
-                    <th style="width: 80px;">Hạn</th>
-                    <th style="width: 100px;">Trạng thái</th>
-                    <th>Ghi chú</th>
-                </tr>
-            </thead>
-            <tbody id="table-body-luong">
-                <tr data-label="Lương T03">
-                    <td>1</td>
-                    <td class="text-danger" data-field="so-tien">35.000.000 ₫</td>
-                    <td data-field="mo-ta">Lương T03.26 lần 16 (Bảng chi tiết thanh toán lương NV)</td>
-                    <td data-field="han">W27</td>
-                    <td><span class="badge badge-danger" data-field="trang-thai">Trễ / Đang xử lý</span></td>
-                    <td data-field="ghi-chu">Giữ ổn định nhân sự</td>
-                </tr>
-                <tr data-label="Lương T04">
-                    <td>2</td>
-                    <td class="text-danger" data-field="so-tien">118.698.750 ₫</td>
-                    <td data-field="mo-ta">Lương T04.26 lần 7 (Bảng chi tiết thanh toán lương NV)</td>
-                    <td data-field="han">W27</td>
-                    <td><span class="badge badge-danger" data-field="trang-thai">Trễ / Đang xử lý</span></td>
-                    <td class="text-danger" data-field="ghi-chu">Ưu tiên lương tồn</td>
-                </tr>
-                <tr data-label="Lương T05">
-                    <td>3</td>
-                    <td class="text-danger" data-field="so-tien">173.162.279 ₫</td>
-                    <td data-field="mo-ta">Lương T05.26 lần 3 (Bảng chi tiết thanh toán lương NV)</td>
-                    <td data-field="han">W27</td>
-                    <td><span class="badge badge-danger" data-field="trang-thai">Trễ / Đang xử lý</span></td>
-                    <td class="text-danger" data-field="ghi-chu">Ưu tiên lương tồn</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <section class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">2. Các Khoản Chi Phí Cố Định - Priority 01</h2>
+                <div class="badge badge-warning" style="font-size: 15px; padding: 6px 12px; color: #0f172a;">
+                    Tổng cộng: <span data-label="Tổng priority 01">107.062.856 ₫</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="8%">STT</th>
+                            <th>Nội Dung Chi Cố Định</th>
+                            <th width="20%">Số Tiền Dự Chi</th>
+                            <th width="15%">Đơn Vị</th>
+                            <th width="12%">Tuần Chu Kỳ</th>
+                            <th width="15%">Hạn Định</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body-priority1">
+                        <tr data-label="BHXH">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">01</td>
+                            <td contenteditable="true"><strong>BHXH</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Nửa đầu tháng</td>
+                        </tr>
+                        <tr data-label="Tiền thuê văn phòng">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">02</td>
+                            <td contenteditable="true"><strong>Tiền thuê văn phòng</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Ngày 05 hàng tháng</td>
+                        </tr>
+                        <tr data-label="Google Usage">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">03</td>
+                            <td contenteditable="true"><strong>Google Usage</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Tự động trừ thẻ</td>
+                        </tr>
+                        <tr data-label="Internet">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">04</td>
+                            <td contenteditable="true"><strong>Internet</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Ngày 10 hàng tháng</td>
+                        </tr>
+                        <tr data-label="Krea Slack">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">05</td>
+                            <td contenteditable="true"><strong>Krea Slack</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Hàng kỳ chu kỳ</td>
+                        </tr>
+                        <tr data-label="Phí dịch vụ thuế">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">06</td>
+                            <td contenteditable="true"><strong>Phí dịch vụ thuế</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Cuối quý báo cáo</td>
+                        </tr>
+                        <tr data-label="Các khoản chi nhỏ">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">07</td>
+                            <td contenteditable="true"><strong>Các khoản chi nhỏ</strong></td>
+                            <td class="text-danger font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Phát sinh tự do</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-    <div class="card" style="margin-bottom: 25px;" id="bang-priority-01" data-table="priority1">
-        <h2>PRIORITY 01 - ĐẢM BẢO VẬN HÀNH, DỊCH VỤ (Tổng: <span data-label="Tổng priority 01">107.062.856 ₫</span>)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 60px;">STT</th>
-                    <th style="width: 150px;">Số tiền</th>
-                    <th>Mô tả</th>
-                    <th style="width: 80px;">Hạn</th>
-                    <th style="width: 100px;">Trễ</th>
-                    <th style="width: 120px;">Trạng thái</th>
-                    <th>Ghi chú</th>
-                </tr>
-            </thead>
-            <tbody id="table-body-priority1">
-                <tr data-label="BHXH T06">
-                    <td>1</td>
-                    <td data-field="so-tien">22.819.200 ₫</td>
-                    <td data-field="mo-ta">BHXH T06.2026 - 13 lao động trước 26/06/2026</td>
-                    <td data-field="han">W26</td>
-                    <td class="text-danger" data-field="tre">Trễ 1W</td>
-                    <td><span class="badge badge-warning" data-field="trang-thai">Chờ duyệt</span></td>
-                    <td class="text-danger" data-field="ghi-chu">Tránh phạt BHXH, khóa thẻ BHYT (Rủi ro PL)</td>
-                </tr>
-                <tr data-label="Tiền thuê văn phòng">
-                    <td>2</td>
-                    <td data-field="so-tien">34.138.800 ₫</td>
-                    <td data-field="mo-ta">Tiền thuê văn phòng 20/06/2026 - 19/07/2026 trước W25</td>
-                    <td data-field="han">W25</td>
-                    <td class="text-danger" data-field="tre">Trễ 2W</td>
-                    <td><span class="badge badge-warning" data-field="trang-thai">Chờ duyệt</span></td>
-                    <td data-field="ghi-chu">Phải chi</td>
-                </tr>
-                <tr data-label="Google Usage">
-                    <td>3</td>
-                    <td data-field="so-tien">34.762.793 ₫</td>
-                    <td data-field="mo-ta">Google Usage 21 seats Feb 4 - May 3, 2026 ($1,270.72)</td>
-                    <td data-field="han">W19</td>
-                    <td class="text-danger" data-field="tre">Trễ 6W</td>
-                    <td><span class="badge badge-warning" data-field="trang-thai">Đang xử lý</span></td>
-                    <td data-field="ghi-chu">C. Phượng trả thẻ tín dụng, phát sinh lãi</td>
-                </tr>
-                <tr data-label="Internet">
-                    <td>4</td>
-                    <td data-field="so-tien">958.065 ₫</td>
-                    <td data-field="mo-ta">Internet trước 15/06/26 W24 (Plan DNTT W24 &rarr; TT thực tế W26)</td>
-                    <td data-field="han">W24</td>
-                    <td class="text-danger" data-field="tre">Trễ 2W</td>
-                    <td><span class="badge badge-warning" data-field="trang-thai">Chờ duyệt</span></td>
-                    <td data-field="ghi-chu">Phải chi</td>
-                </tr>
-                <tr data-label="Krea Slack">
-                    <td>5 &amp; 6</td>
-                    <td data-field="so-tien">7.612.372 ₫</td>
-                    <td data-field="mo-ta">Krea Jun 16-Jul 16 ($105) &amp; Slack $173.87 paid on June 20, 26 (TT thực tế W25)</td>
-                    <td data-field="han">W23/W25</td>
-                    <td class="text-danger" data-field="tre">Trễ 2W</td>
-                    <td><span class="badge badge-warning" data-field="trang-thai">Đang xử lý</span></td>
-                    <td data-field="ghi-chu">C. Phương trả thẻ tín dụng, phát sinh lãi</td>
-                </tr>
-                <tr data-label="Phí dịch vụ thuế">
-                    <td>8</td>
-                    <td data-field="so-tien">5.000.000 ₫</td>
-                    <td data-field="mo-ta">Phí dịch vụ báo cáo thuế năm 2025 chị Hồng Phương</td>
-                    <td data-field="han">W18</td>
-                    <td class="text-danger" data-field="tre">Trễ 9W</td>
-                    <td><span class="badge badge-warning" data-field="trang-thai">Chờ duyệt</span></td>
-                    <td data-field="ghi-chu">Phải chi, phát sinh lãi</td>
-                </tr>
-                <tr data-label="Các khoản chi nhỏ">
-                    <td>9-14</td>
-                    <td data-field="so-tien">1.285.000 ₫</td>
-                    <td data-field="mo-ta">Các khoản chi nhỏ (Grab quyết định Hải, xe Triệu Vy, Băng keo, Liên hoan, Vệ sinh máy tính...)</td>
-                    <td data-field="han">W18-W24</td>
-                    <td class="text-warning" data-field="tre">Trễ 3W-9W</td>
-                    <td><span class="badge badge-success" data-field="trang-thai">Goal W27</span></td>
-                    <td style="color: #718096;" data-field="ghi-chu">Chưa ưu tiên thấp</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <section class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">3. Các Khoản Chi Ưu Tiên 2 - Priority 02</h2>
+                <div class="badge badge-success" style="font-size: 15px; padding: 6px 12px;">
+                    Tổng cộng: <span data-label="Tổng priority 02">325.084.792 ₫</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="8%">STT</th>
+                            <th>Mục Chi Phí Dự Phòng</th>
+                            <th width="20%">Số Tiền Dự Chi</th>
+                            <th width="15%">Đơn Vị</th>
+                            <th width="12%">Tuần Chu Kỳ</th>
+                            <th width="15%">Ghi Chú Hoạt Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body-priority2">
+                        <tr data-label="Lương T07">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">01</td>
+                            <td contenteditable="true"><strong>Lương T07</strong></td>
+                            <td class="text-warning font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Dự phòng cuối kỳ</td>
+                        </tr>
+                        <tr data-label="Thuế GTGT">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">02</td>
+                            <td contenteditable="true"><strong>Thuế GTGT</strong></td>
+                            <td class="text-warning font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td contenteditable="true">Khấu trừ theo quý</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-    <div class="grid-2">
-        <div class="card" style="margin-bottom: 25px;" id="bang-priority-02" data-table="priority2">
-            <h2>PRIORITY 02 - ĐẢM BẢO VẬN HÀNH W28</h2>
-            <p><strong>Tổng dự kiến:</strong> <span data-label="Tổng priority 02">325.084.792 ₫</span></p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nội dung</th>
-                        <th>Số tiền</th>
-                        <th>Hạn / Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body-priority2">
-                    <tr data-label="Lương T07">
-                        <td>Lương T07 tt 07/10/26 (W28 plan)</td>
-                        <td data-field="so-tien">266.882.900 ₫</td>
-                        <td><span class="badge badge-success" data-field="trang-thai">Sắp tới / Chuẩn bị</span></td>
-                    </tr>
-                    <tr data-label="Thuế GTGT">
-                        <td>Thuế GTGT Q1.26 + chậm nộp</td>
-                        <td class="text-danger" data-field="so-tien">58.201.892 ₫</td>
-                        <td><span class="badge badge-danger" data-field="trang-thai">Trễ 9W / Rủi ro cao</span></td>
-                    </tr>
-                    <tr data-label="Google Usage May-Jun">
-                        <td>Google Usage (25 seats May-Jun)</td>
-                        <td data-field="so-tien">Chưa quy đổi</td>
-                        <td><span class="badge badge-warning" data-field="trang-thai">W27 / Chuẩn bị</span></td>
-                    </tr>
-                    <tr data-label="Krea Max">
-                        <td>Krea Max (May 9-June 9)</td>
-                        <td data-field="so-tien">$70.00</td>
-                        <td><span class="badge badge-warning" data-field="trang-thai">W26 / Chuẩn bị</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="card" style="margin-bottom: 25px;" id="bang-pipeline" data-table="pipeline">
-            <h2>PIPELINE CHI PHÍ NGOẠI TỆ & SẮP TỚI</h2>
-            <p style="color: #718096; font-style: italic;">*Không cộng dồn vào tổng dự chi tuần này.</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tuần</th>
-                        <th>Số tiền</th>
-                        <th>Mô tả</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body-pipeline">
-                    <tr data-label="Slack W30">
-                        <td data-field="tuan">W30</td>
-                        <td data-field="so-tien">$173.87</td>
-                        <td data-field="mo-ta">Slack paid before July 20, 26 Plan DNTT</td>
-                        <td><span class="badge badge-warning">Chuẩn bị nguồn</span></td>
-                    </tr>
-                    <tr data-label="Miro W28">
-                        <td data-field="tuan">W28</td>
-                        <td data-field="so-tien">$250.00</td>
-                        <td data-field="mo-ta">Miro Starter Monthly - 25 users</td>
-                        <td><span class="badge badge-warning">Chưa đổi VNĐ</span></td>
-                    </tr>
-                    <tr data-label="ChatGPT W29">
-                        <td data-field="tuan">W29</td>
-                        <td data-field="so-tien">1.450.000 ₫</td>
-                        <td data-field="mo-ta">ChatGPT June 29-July 29, 2026</td>
-                        <td><span class="badge badge-warning" data-field="trang-thai">Chờ duyệt</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="card card-conclusion">
-        <h2>CEO / CFO SUMMARY & KẾT LUẬN</h2>
-        <div class="alert alert-success">
-            <strong>Kết luận chiến lược:</strong> W27 hoàn toàn có khả năng <strong>dương dòng tiền (+87.069.455 ₫)</strong> nếu phòng ban hoàn thành kế hoạch thu hồi công nợ đạt 100%. Trọng tâm giai đoạn này không tập trung vào chi phí mới, mà tập trung giải phóng áp lực tồn đọng (Lương cũ, BHXH, Thuế, và Văn phòng). Cần khóa cứng thứ tự ưu tiên thanh toán dựa trên rủi ro pháp lý và mức độ ảnh hưởng đến vận hành.
-        </div>
-        
-        <h3 style="margin-top: 20px; font-size:16px;">TOP 5 ƯU TIÊN HÀNH ĐỘNG NGAY:</h3>
-        <ul>
-            <li><strong>Thu đủ Mission 01 (222.366.970 ₫):</strong> Để đảm bảo cốt lõi dòng tiền vận hành tuần.</li>
-            <li><strong>Hoàn thành thu Mission 02 (356.831.258 ₫):</strong> Tập trung nguồn lực xử lý trực tiếp lương tồn và nợ quá hạn.</li>
-            <li><strong>Xử lý lương tồn đọng T03-T05 (326.861.029 ₫):</strong> Ưu tiên hàng đầu để giữ ổn định tâm lý và nhân sự công ty.</li>
-            <li><strong>Thanh toán BHXH T06 và Tiền thuê văn phòng:</strong> Ngăn chặn triệt để rủi ro phạt hành chính và gián đoạn nơi làm việc.</li>
-            <li><strong>Chuẩn bị ngân sách dự phòng W28:</strong> Cho khoản Thuế GTGT Q1.26 và Lương T07 sắp đến hạn.</li>
-        </ul>
+        <section class="card">
+            <h2>4. Kế Hoạch Dự Thu & Nguồn Tiền Pipeline</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th width="8%">STT</th>
+                            <th>Nguồn Doanh Thu / Khách Hàng</th>
+                            <th width="20%">Số Tiền Kế Hoạch</th>
+                            <th width="15%">Đơn Vị</th>
+                            <th width="12%">Tuần Thu Dự Kiến</th>
+                            <th width="15%">Phân Loại Khối</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body-pipeline">
+                        <tr data-label="Mission 01">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">01</td>
+                            <td contenteditable="true"><strong>Mission 01</strong></td>
+                            <td class="text-success font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td><span class="badge badge-success">Dự án lớn</span></td>
+                        </tr>
+                        <tr data-label="Mission 02">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">02</td>
+                            <td contenteditable="true"><strong>Mission 02</strong></td>
+                            <td class="text-success font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td><span class="badge badge-success">Dự án lớn</span></td>
+                        </tr>
+                        <tr data-label="Sale">
+                            <td style="text-align: center;"><button class="btn-delete-row" title="Xóa dòng này">×</button></td>
+                            <td contenteditable="true">03</td>
+                            <td contenteditable="true"><strong>Sale</strong></td>
+                            <td class="text-success font-mono" data-field="so-tien" contenteditable="true">0 ₫</td>
+                            <td contenteditable="true">VNĐ</td>
+                            <td contenteditable="true">W27</td>
+                            <td><span class="badge badge-warning">Bán lẻ phát sinh</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <footer>
-        Báo cáo phân tích dòng tiền tự động - Phát triển nội bộ bởi @Bach Nguyen
+        <p>© 2026 Hệ thống Quản Trị Hệ Thống Dòng Tiền & Kế Hoạch Tài Chính Chu Kỳ.</p>
+        <p style="font-size: 11px; color: #64748b; margin-top: 5px;">Phát triển dựa trên tiêu chuẩn quản lý ngân sách ISO 8601.</p>
     </footer>
-
-</div>
 
     <script src="index.js"></script>
 </body>

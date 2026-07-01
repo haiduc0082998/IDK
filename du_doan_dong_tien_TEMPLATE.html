@@ -1,16 +1,167 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Du doan dong tien</title>
-<link rel="stylesheet" href="du_doan_dong_tien_TEMPLATE.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Dự Đoán Dòng Tiền & Kế Hoạch Thu Chi Chu Kỳ</title>
+    <link rel="stylesheet" href="du_doan_dong_tien_TEMPLATE.css">
 </head>
 <body>
 
-<div class="page" id="page1"></div>
+    <div class="page" id="page1">
+        <div class="header-container">
+            <div class="company-name">HỆ THỐNG QUẢN TRỊ TÀI CHÍNH DOANH NGHIỆP</div>
+            <div class="report-meta">
+                <span class="meta-label">Người lập:</span> <strong id="lbl-owner">@Kim Phuong</strong><br>
+                <span class="meta-label">Ngày xuất bản:</span> <span id="lbl-report-date">29/06/2026</span>
+            </div>
+        </div>
 
-<div class="page" id="page2"></div>
+        <div class="report-title-block">
+            <h1 id="lbl-title">DU DOAN DONG TIEN W27</h1>
+            <div class="report-period" id="lbl-period">Chu kỳ tuần: 29/06/2026 – 05/07/2026</div>
+        </div>
 
-<script src="du_doan_dong_tien_TEMPLATE.js"></script>
+        <div class="section-title">I. CHỈ SỐ DÒNG TIỀN TRỌNG TÂM TRONG TUẦN</div>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>CHỈ SỐ TÀI CHÍNH QUY ĐỔI</th>
+                    <th style="text-align: right; width: 35%;">GIÁ TRỊ SỐ LIỆU</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong class="text-blue">1. Dự Thu Tuần (Pipeline Dự Kiến Đạt Đối Soát)</strong></td>
+                    <td class="amount text-blue" id="val-du-thu-tuan" contenteditable="true" data-field="du-thu">0 ₫</td>
+                </tr>
+                <tr>
+                    <td><strong class="text-orange">2. Dự Chi Tuần (Ngân Sách Vận Hành Tối Thiểu)</strong></td>
+                    <td class="amount text-orange" id="val-du-chi-tuan" contenteditable="true" data-field="du-chi">0 ₫</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td><strong>3. Net Cashflow Tuần Hiện Tại (Dòng Tiền Thuần)</strong></td>
+                    <td class="amount" id="val-net-cashflow" contenteditable="true" data-field="net-cashflow">0 ₫</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-title" style="margin-top: 30px;">II. TIẾN ĐỘ THỰC HIỆN KPI DOANH THU THÁNG CHU KỲ</div>
+        
+        <div class="kpi-block">
+            <div class="kpi-header">
+                <span id="lbl-kpi-t6">Mục tiêu Doanh Thu Tháng 06:</span>
+                <strong class="text-green">1.000.000.000 ₫</strong>
+            </div>
+            <div class="kpi-status">
+                <span>Lũy kế đã thu (W21–W25):</span>
+                <span id="val-thu-t6" style="font-weight: bold;" contenteditable="true" data-field="thu-t6">300.597.074 ₫ (30.06% KPI)</span>
+            </div>
+            <div class="kpi-header" style="margin-top: 15px;">
+                <span id="lbl-kpi-t7">Mục tiêu Doanh Thu Tháng 07:</span>
+                <strong class="text-green">1.000.000.000 ₫</strong>
+            </div>
+            <div class="kpi-status">
+                <span>Lũy kế đã thu (W26–W30):</span>
+                <span id="val-thu-t7" style="font-weight: bold;" contenteditable="true" data-field="thu-t7">115.049.200 ₫ (11.50% KPI)</span>
+            </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 35px;">III. CEO / CFO SUMMARY & KẾT LUẬN CHIẾN LƯỢC</div>
+        <div class="summary-box" id="lbl-conclusion">
+            Báo cáo tổng kết chu kỳ tuần cho thấy trạng thái dòng tiền biến động phụ thuộc lớn vào tiến độ giải ngân từ đối tác ở hai đầu mục Mission 01 và Mission 02. Các phòng ban vận hành bắt buộc phải thắt chặt ngân sách chi tiêu, giải quyết dứt điểm các khoản chi thuộc nhóm Priority 01 (Lương tồn, BHXH và Tiền văn phòng cố định) nhằm loại bỏ tối đa các rủi ro pháp lý gián đoạn và đảm bảo tính liên tục của hệ thống doanh nghiệp.
+        </div>
+    </div>
+
+    <div class="page" id="page2">
+        <div class="section-title" style="margin-top: 0;">IV. KẾ HOẠCH PHÂN BỔ VÀ CHI TIẾT CÁC DANH MỤC TÀI CHÍNH</div>
+        
+        <h3>1. Khối Dự Thu & Nguồn Tiền Pipeline</h3>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%; text-align: center;">STT</th>
+                    <th>Nguồn Doanh Thu / Đối Tác Khách Hàng</th>
+                    <th style="width: 25%; text-align: right;">Số Tiền Hoàn Thành</th>
+                    <th style="width: 20%; text-align: center;">Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody id="export-body-pipeline">
+                <tr>
+                    <td style="text-align: center;">01</td>
+                    <td>Mission 01</td>
+                    <td style="text-align: right; font-weight: bold;" data-field="so-tien" contenteditable="true" class="text-blue">0 ₫</td>
+                    <td style="text-align: center;"><span class="badge badge-green">Dự án lớn</span></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">02</td>
+                    <td>Mission 02</td>
+                    <td style="text-align: right; font-weight: bold;" data-field="so-tien" contenteditable="true" class="text-blue">0 ₫</td>
+                    <td style="text-align: center;"><span class="badge badge-green">Dự án lớn</span></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">03</td>
+                    <td>Sale</td>
+                    <td style="text-align: right; font-weight: bold;" data-field="so-tien" contenteditable="true" class="text-blue">0 ₫</td>
+                    <td style="text-align: center;"><span class="badge badge-blue">Bán lẻ phát sinh</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top: 25px;">2. Danh Mục Các Khoản Chi Tồn & Dự Chi Cố Định</h3>
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%; text-align: center;">STT</th>
+                    <th>Nội Dung Chi Phí Hệ Thống</th>
+                    <th style="width: 25%; text-align: right;">Số Tiền Chi Dự Kiến</th>
+                    <th style="width: 20%; text-align: center;">Nhóm Ưu Tiên</th>
+                </tr>
+            </thead>
+            <tbody id="export-body-chi">
+                <tr>
+                    <td style="text-align: center;">01</td>
+                    <td>Lương Tồn Động T03 - T05</td>
+                    <td style="text-align: right; font-weight: bold;" id="val-tong-luong" contenteditable="true" data-field="tong-luong">0 ₫</td>
+                    <td style="text-align: center;"><span class="badge badge-red">Nguy cấp</span></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">02</td>
+                    <td>Chi Cố Định Priority 01 (BHXH, Thuê VP, Internet,...)</td>
+                    <td style="text-align: right; font-weight: bold;" id="val-tong-priority1" contenteditable="true" data-field="priority1">0 ₫</td>
+                    <td style="text-align: center;"><span class="badge badge-orange">Ưu tiên 1</span></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">03</td>
+                    <td>Chi Dự Phòng Priority 02 (Lương T07, Thuế GTGT)</td>
+                    <td style="text-align: right; font-weight: bold;" id="val-tong-priority2" contenteditable="true" data-field="priority2">0 ₫</td>
+                    <td style="text-align: center;"><span class="badge badge-blue">Ưu tiên 2</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="signature-block" style="margin-top: 60px;">
+            <div class="signature-column">
+                <span class="signature-title">NGƯỜI LẬP BÁO CÁO</span>
+                <span class="signature-note">(Ký, ghi rõ họ tên)</span>
+                <div class="signature-space"></div>
+                <strong>@Kim Phuong</strong>
+            </div>
+            <div class="signature-column">
+                <span class="signature-title">GIÁM ĐỐC TÀI CHÍNH (CFO)</span>
+                <span class="signature-note">(Biện pháp kiểm soát)</span>
+                <div class="signature-space"></div>
+                <span>......................................................</span>
+            </div>
+            <div class="signature-column">
+                <span class="signature-title">TỔNG GIÁM ĐỐC (CEO)</span>
+                <span class="signature-note">(Phê duyệt phương án chi)</span>
+                <div class="signature-space"></div>
+                <span>......................................................</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="du_doan_dong_tien_TEMPLATE.js"></script>
 </body>
 </html>
