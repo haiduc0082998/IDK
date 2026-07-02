@@ -264,6 +264,49 @@ td {
 }
 
 /* --- CẤU HÌNH KHI IN ẤN THỰC TẾ (PRINTER OPTIMIZATION) --- */
+/* --- THANH XUẤT BÁO CÁO --- */
+.export-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.export-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12pt;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    color: #334155;
+}
+
+.export-btn:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+@page {
+    size: A4 portrait;
+    margin: 20mm;
+}
+
+@media print {
+    /* Ẩn thanh export khi in */
+    .export-toolbar {
+        display: none !important;
+    }
+}
+
 @media print {
     body {
         background: white;
