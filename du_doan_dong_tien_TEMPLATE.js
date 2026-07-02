@@ -282,3 +282,231 @@ function initEditableCells() {
         });
     });
 }
+
+// --- XUẤT FILE BÁO CÁO THEO CÁC ĐỊNH DẠNG ---
+function exportToWord() {
+    window.print();
+}
+
+function exportToExcel() {
+    const wb = XLSX.utils.book_new();
+    const week = document.getElementById('lbl-title').textContent.replace(/\D/g, '') || '27';
+
+    // Sheet 1: Tổng quan
+    const summaryData = [];
+    const duThu = document.getElementById('val-du-thu-tuan')?.textContent || '0 ₫';
+    const duChi = document.getElementById('val-du-chi-tuan')?.textContent || '0 ₫';
+    const net = document.getElementById('val-net-cashflow')?.textContent || '0 ₫';
+    summaryData.push(['Chỉ số', 'Giá trị']);
+    summaryData.push(['Dự thu tuần', duThu]);
+    summaryData.push(['Dự chi tuần', duChi]);
+    summaryData.push(['Net cashflow', net]);
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, ws1, 'TỔNG QUAN');
+
+    // Sheet 2: Pipeline
+    const pipelineData = [];
+    const pipelineHeader = ['STT', 'Nguồn Doanh Thu', 'Số Tiền', 'Trạng Thái'];
+    pipelineData.push(pipelineHeader);
+    document.querySelectorAll('#export-body-pipeline tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 3) {
+            pipelineData.push([
+                tds[0]?.textContent?.trim() || '',
+                tds[1]?.textContent?.trim() || '',
+                tds[2]?.textContent?.trim() || '',
+                tds[3]?.textContent?.trim() || ''
+            ]);
+        }
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(pipelineData);
+    XLSX.utils.book_append_sheet(wb, ws2, 'PIPELINE');
+
+    // Sheet 3: Chi tiết chi
+    const chiData = [];
+    const chiHeader = ['STT', 'Nội dung chi', 'Số tiền', 'Nhóm ưu tiên'];
+    chiData.push(chiHeader);
+    document.querySelectorAll('#export-body-chi tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 4) {
+            chiData.push([
+                tds[0]?.textContent?.trim() || '',
+                tds[1]?.textContent?.trim() || '',
+                tds[2]?.textContent?.trim() || '',
+                tds[3]?.textContent?.trim() || ''
+            ]);
+        }
+    });
+    const ws3 = XLSX.utils.aoa_to_sheet(chiData);
+    XLSX.utils.book_append_sheet(wb, ws3, 'CHI TIẾT CHI');
+
+    // Sheet 4: KPI
+    const kpiData = [];
+    kpiData.push(['Tháng', 'Mục tiêu', 'Lũy kế', 'Tỷ lệ']);
+    const thuT6 = document.getElementById('val-thu-t6')?.textContent?.trim() || '';
+    const thuT7 = document.getElementById('val-thu-t7')?.textContent?.trim() || '';
+    kpiData.push(['Tháng 06', '1.000.000.000 ₫', thuT6, '']);
+    kpiData.push(['Tháng 07', '1.000.000.000 ₫', thuT7, '']);
+    const ws4 = XLSX.utils.aoa_to_sheet(kpiData);
+    XLSX.utils.book_append_sheet(wb, ws4, 'KPI DOANH THU');
+
+    XLSX.writeFile(wb, `Du_Doan_Dong_Tien_W${week}.xlsx`);
+}
+
+function exportToGoogleSheets() {
+    const rows = [];
+    rows.push(['CHỈ SỐ DÒNG TIỀN']);
+    rows.push(['Dự thu tuần', document.getElementById('val-du-thu-tuan')?.textContent || '']);
+    rows.push(['Dự chi tuần', document.getElementById('val-du-chi-tuan')?.textContent || '']);
+    rows.push(['Net cashflow', document.getElementById('val-net-cashflow')?.textContent || '']);
+    rows.push([]);
+    rows.push(['PIPELINE']);
+    rows.push(['STT', 'Nguồn Doanh Thu', 'Số Tiền', 'Trạng Thái']);
+    document.querySelectorAll('#export-body-pipeline tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 3) {
+            rows.push([
+                tds[0]?.textContent?.trim() || '',
+                tds[1]?.textContent?.trim() || '',
+                tds[2]?.textContent?.trim() || '',
+                tds[3]?.textContent?.trim() || ''
+            ]);
+        }
+    });
+    rows.push([]);
+    rows.push(['CHI TIẾT CHI']);
+    rows.push(['STT', 'Nội dung chi', 'Số tiền', 'Nhóm ưu tiên']);
+    document.querySelectorAll('#export-body-chi tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 4) {
+            rows.push([
+                tds[0]?.textContent?.trim() || '',
+                tds[1]?.textContent?.trim() || '',
+                tds[2]?.textContent?.trim() || '',
+                tds[3]?.textContent?.trim() || ''
+            ]);
+        }
+    });
+
+    let csvContent = '';
+    rows.forEach(row => {
+        csvContent += row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const week = document.getElementById('lbl-title').textContent.replace(/\D/g, '') || '27';
+    link.setAttribute('href', URL.createObjectURL(blob));
+    link.setAttribute('download', `Du_Doan_Dong_Tien_W${week}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    alert('Đã tải file CSV. Bạn có thể nhập file này vào Google Sheets để tiếp tục chỉnh sửa.');
+}
+
+function exportToPowerPoint() {
+    const title = document.getElementById('lbl-title')?.textContent || 'BAO CAO';
+    const period = document.getElementById('lbl-period')?.textContent || '';
+    const conclusion = document.getElementById('lbl-conclusion')?.textContent || '';
+
+    let slideHtml = `
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>${title} - Slide</title>
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            .slide {
+                width: 1280px;
+                height: 720px;
+                page-break-after: always;
+                padding: 40px 60px;
+                position: relative;
+                font-family: Arial, sans-serif;
+            }
+            .slide-1 { background: #ffffff; }
+            .slide-2 { background: #ffffff; }
+            .company { font-size: 24px; font-weight: bold; color: #0f172a; margin-bottom: 10px; }
+            .title { font-size: 56px; font-weight: bold; color: #0f172a; margin-bottom: 15px; text-transform: uppercase; }
+            .period { font-size: 28px; color: #475569; margin-bottom: 30px; }
+            .meta { font-size: 20px; color: #475569; display: flex; justify-content: space-between; }
+            h2 { font-size: 32px; color: #0f172a; margin-bottom: 20px; border-bottom: 3px solid #dc2626; padding-bottom: 8px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 20px; }
+            th { background: #fef2f2; color: #dc2626; font-weight: bold; padding: 12px 16px; border: 1px solid #cbd5e1; text-align: left; }
+            td { padding: 12px 16px; border: 1px solid #cbd5e1; }
+            .amount { font-family: 'Courier New', monospace; font-weight: bold; text-align: right; }
+            .kpi-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
+            .kpi-header { display: flex; justify-content: space-between; font-size: 22px; font-weight: bold; margin-bottom: 8px; }
+            .kpi-status { font-size: 18px; color: #475569; }
+            .conclusion { background: #f0fdf4; border-left: 5px solid #16a34a; padding: 20px; font-size: 18px; line-height: 1.6; text-align: justify; }
+            .text-blue { color: #1e40af !important; }
+            .text-orange { color: #b45309 !important; }
+            @media print { .slide { size: 1280px 720px; margin: 0; } }
+        </style>
+    </head>
+    <body>
+        <div class="slide slide-1">
+            <div class="company">HỆ THỐNG QUẢN TRỊ TÀI CHÍNH DOANH NGHIỆP</div>
+            <div class="title">${title}</div>
+            <div class="period">${period}</div>
+            <div class="meta">
+                <div><strong>Người lập:</strong> @Kim Phuong</div>
+                <div><strong>Ngày xuất bản:</strong> 29/06/2026</div>
+            </div>
+            <h2>I. CHỈ SỐ DÒNG TIỀN TRỌNG TÂM TRONG TUẦN</h2>
+            <table>
+                <tr><th>Chỉ số</th><th style="text-align: right;">Giá trị</th></tr>
+                <tr>
+                    <td><strong class="text-blue">Dự Thu Tuần</strong></td>
+                    <td class="amount" style="color: #1e40af;">${document.getElementById('val-du-thu-tuan')?.textContent || ''}</td>
+                </tr>
+                <tr>
+                    <td><strong class="text-orange">Dự Chi Tuần</strong></td>
+                    <td class="amount" style="color: #b45309;">${document.getElementById('val-du-chi-tuan')?.textContent || ''}</td>
+                </tr>
+                <tr>
+                    <td><strong>Net Cashflow</strong></td>
+                    <td class="amount">${document.getElementById('val-net-cashflow')?.textContent || ''}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="slide slide-2">
+            <h2>II. PIPELINE DỰ THU</h2>
+            <table>
+                <tr><th>STT</th><th>Nguồn Doanh Thu</th><th style="text-align: right;">Số Tiền</th><th>Trạng Thái</th></tr>
+                ${Array.from(document.querySelectorAll('#export-body-pipeline tr')).map(tr => {
+                    const tds = tr.querySelectorAll('td');
+                    const cells = Array.from(tds).map(td => td?.textContent?.trim() || '');
+                    return `<tr><td>${cells[0]}</td><td>${cells[1]}</td><td class="amount">${cells[2]}</td><td>${cells[3]}</td></tr>`;
+                }).join('')}
+            </table>
+            <h2>III. CHI TIẾT CHI PHÍ</h2>
+            <table>
+                <tr><th>STT</th><th>Nội dung chi</th><th style="text-align: right;">Số tiền</th><th>Nhóm ưu tiên</th></tr>
+                ${Array.from(document.querySelectorAll('#export-body-chi tr')).map(tr => {
+                    const tds = tr.querySelectorAll('td');
+                    const cells = Array.from(tds).map(td => td?.textContent?.trim() || '');
+                    return `<tr><td>${cells[0]}</td><td>${cells[1]}</td><td class="amount">${cells[2]}</td><td>${cells[3]}</td></tr>`;
+                }).join('')}
+            </table>
+            <div class="conclusion" style="margin-top: 20px;">
+                <strong>Kết luận chiến lược:</strong><br>
+                ${conclusion}
+            </div>
+            <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 18px;">
+                <div style="text-align: center; width: 30%;"><strong>NGƯỜI LẬP BÁO CÁO</strong><br>(Ký, ghi rõ họ tên)<br><br><br><strong>@Kim Phuong</strong></div>
+                <div style="text-align: center; width: 30%;"><strong>GIÁM ĐỐC TÀI CHÍNH</strong><br>(Biện pháp kiểm soát)<br><br><br>.........................</div>
+                <div style="text-align: center; width: 30%;"><strong>TỔNG GIÁM ĐỐC</strong><br>(Phê duyệt phương án chi)<br><br><br>.........................</div>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const blob = new Blob([slideHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) {
+        win.focus();
+    }
+}

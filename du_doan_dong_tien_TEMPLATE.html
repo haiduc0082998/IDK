@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Báo Cáo Dự Đoán Dòng Tiền & Kế Hoạch Thu Chi Chu Kỳ</title>
     <link rel="stylesheet" href="du_doan_dong_tien_TEMPLATE.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -20,6 +21,14 @@
         <div class="report-title-block">
             <h1 id="lbl-title">DU DOAN DONG TIEN W27</h1>
             <div class="report-period" id="lbl-period">Chu kỳ tuần: 29/06/2026 – 05/07/2026</div>
+        </div>
+
+        <div class="export-toolbar" id="export-toolbar">
+            <span style="font-weight: 600; color: #334155;">📤 Xuất báo cáo:</span>
+            <button class="export-btn" onclick="exportToWord()">📝 Word</button>
+            <button class="export-btn" onclick="exportToExcel()">📊 Excel</button>
+            <button class="export-btn" onclick="exportToGoogleSheets()">📋 Google Sheets</button>
+            <button class="export-btn" onclick="exportToPowerPoint()">📽 PowerPoint</button>
         </div>
 
         <div class="section-title">I. CHỈ SỐ DÒNG TIỀN TRỌNG TÂM TRONG TUẦN</div>

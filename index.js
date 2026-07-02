@@ -35,7 +35,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // 5. Xử lý file CSV/Excel
     const fileInput = document.getElementById('fileInput');
     if (fileInput) {
-        fileInput.addEventListener('change', handleFileImport);
+        fileInput.addEventListener('change', function(e) {
+            const fileNameSpan = document.getElementById('fileName');
+            if (fileNameSpan && e.target.files[0]) {
+                fileNameSpan.textContent = 'Đã chọn: ' + e.target.files[0].name;
+            }
+            handleFileImport(e);
+        });
+    }
+
+    const btnChooseFile = document.getElementById('btn-choose-file');
+    if (btnChooseFile && fileInput) {
+        btnChooseFile.addEventListener('click', function() {
+            fileInput.click();
+        });
     }
 });
 
@@ -211,10 +224,13 @@ function initEditableTableCells() {
 
 function initDeleteButtons() {
     document.querySelectorAll('.btn-delete-row').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            deleteRow(e);
-        });
+        btn.removeEventListener('click', handleDeleteClick);
+        btn.addEventListener('click', handleDeleteClick);
     });
+}
+
+function handleDeleteClick(e) {
+    deleteRow(e);
 }
 
 function deleteRow(event) {
@@ -222,22 +238,20 @@ function deleteRow(event) {
     var row = btn.closest('tr');
     if (!row) return;
     
-    if (confirm('Bạn có chắc muốn xóa dòng này?')) {
-        var tbody = row.parentElement;
-        row.remove();
-        
-        // Update STT numbers for this table
-        updateSttNumbers(tbody.id);
-        
-        // Recalculate totals
-        updateTotalsOnEdit();
-        
-        // Update original state to reflect deletion
-        if (originalTableBodies[tbody.id]) {
-            var tbodyEl = document.getElementById(tbody.id);
-            if (tbodyEl) {
-                originalTableBodies[tbody.id] = tbodyEl.innerHTML;
-            }
+    var tbody = row.parentElement;
+    row.remove();
+    
+    // Update STT numbers for this table
+    updateSttNumbers(tbody.id);
+    
+    // Recalculate totals
+    updateTotalsOnEdit();
+    
+    // Update original state to reflect deletion
+    if (originalTableBodies[tbody.id]) {
+        var tbodyEl = document.getElementById(tbody.id);
+        if (tbodyEl) {
+            originalTableBodies[tbody.id] = tbodyEl.innerHTML;
         }
     }
 }
